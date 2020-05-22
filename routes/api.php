@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Http\Request;
-
+use App\Street;
+use Illuminate\Support\Facades\Input;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -15,4 +16,10 @@ use Illuminate\Http\Request;
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::get('/search',function(){
+    $query = Input::get('query');
+    $users = Street::where('name','like','%'.$query.'%')->get();
+    return response()->json($users);
 });
