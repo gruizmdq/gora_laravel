@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMenuTypesTable extends Migration
+class CreateZonesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,12 @@ class CreateMenuTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('menu_types', function (Blueprint $table) {
+        Schema::create('zones', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('name', 45);
+            $table->boolean('lock')->nullable($value = true)->default(false);;
+            
             $table->timestamps();
-            $table->string('name');
         });
     }
 
@@ -27,6 +29,6 @@ class CreateMenuTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('menu_types');
+        Schema::dropIfExists('zones');
     }
 }

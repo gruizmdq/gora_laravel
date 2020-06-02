@@ -15,7 +15,6 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('id_empresa');
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -23,8 +22,6 @@ class CreateUsersTable extends Migration
             $table->rememberToken();
             $table->boolean('is_admin')->default(false);
             $table->timestamps();
-
-            $table->foreign('id_empresa')->references('id')->on('empresas');
 
         });
     }

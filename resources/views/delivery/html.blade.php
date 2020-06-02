@@ -30,7 +30,18 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
-
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('delivery.home') }}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('delivery.list_orders') }}">Pedidos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('delivery.zones') }}">Zonas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('delivery.routes') }}">Rutas</a>
+                        </li>
                     </ul>
 
                     <!-- Right Side Of Navbar -->

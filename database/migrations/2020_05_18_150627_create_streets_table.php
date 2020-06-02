@@ -15,7 +15,7 @@ class CreateStreetsTable extends Migration
     {
         Schema::create('streets', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('code')->unique();
+            $table->string('code');
             $table->string('name');
 
             $table->timestamps();

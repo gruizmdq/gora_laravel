@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MenuType extends Model
+class Zone extends Model
 {
     //
 }
