@@ -1,112 +1,30 @@
-@extends('delivery.html')
+@extends('layouts.html')
 
 @section('content')
-@if ( session('message') )
-    <div class="alert alert-success">{{ session('message') }}</div>
-@endif
-<div class="container">
+<div class="container-fluid" style="background: #fafafa">
     <div class="row pb-3">
-        <div class="col-lg-4 mt-3">
-            <form class="border p-3 needs-validation" method="POST" action="{{ route('delivery.save_order') }}">
-            @csrf
-            
-                <h4>Direcciones <span>Agregar Calle</span></h4>
-                <div class="form-group">
-                    <autocomplete></autocomplete>
+        <div class="col-lg-12">
+            <div class="z-depth-1 white p-4">
+                <h4 class="">Rutas</h4>
+                <div class="mt-3 col-md-12">
+                    <ul class="boton nav">
+                        @foreach($zones as $zone)
+                        <li class="nav-item {{ request()->segment(count(request()->segments())) == $zone->id ? 'active' : ''  }}">
+                            <a href="{{ route('delivery.routes', $zone->id) }}" class="btn waves-effect btn-sm  {{ request()->segment(count(request()->segments())) == $zone->id ? 'btn-primary' : 'btn-outline-primary'  }}">{{ $zone->name }}</a>
+                        </li>
+                        @endforeach
+                    </ul>
                 </div>
-                <div class="form-group">
-                    <input required type="number" name="number" class="w-100 form-control validate" step="1" min="0" placeholder="Número">
-                </div>
-                <div class="form-group">
-                    <input type="text" name="phone" class="w-100 form-control validate" placeholder="Teléfono">
-                </div>
-                <div class="form-group">
-                    <input type="number" name="price" class="w-100 form-control validate" min="0" placeholder="Precio">
-                </div>
-                <div class="form-group">
-                    <input type="text" name="description" class="w-100 form-control validate" placeholder="Descripcion">
-                </div>
-                
-                <button id="btn-submit" type="submit" class="save btn btn-primary">Agregar</button>
-            </form>
-        </div>
-        <div class="col-lg-8 mt-3 p-4">
-            <h4>Pedidos sin entregar</h4>
-
-            @if(count($ship_orders))
-            <div class="mt-3">
-                <table id="tabla" class="py-2 px-1 table table-sm table-striped  table-bordered">
-                    <thead>
-                        <tr>
-                        <th scope="col">Dirección</th>
-                        <th scope="col">Número</th>
-                        <th scope="col">Teléfono</th>
-                        <th scope="col">Zona</th>
-                        <th scope="col">Precio</th>
-                        <th scope="col">-</th>
-                        <th scope="col">-</th>
-                        <th scope="col">-</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @foreach($ship_orders as $order)
-                            <tr data-id="{{ $order->id }}">
-                                <td>{{ $order->street }}</td>
-                                <td><input class="form-control w-100 order-input" name="number" type="number" value="{{ $order->number }}" min="0" required step="1"></td>
-                                <td><input class="form-control w-100" type="text" name="phone" value="{{ $order->phone }}"></td>
-                                <td class="neighborhood">{{ $order->zone_name }}</td>
-                                <td><input class="form-control w-100" type="number" name="price" value="{{ $order->price }}"></td>
-                                <td class="text-center"><a onclick="deleteOrder({{ $order->id }})"><span class="badge badge-warning order-edit-label py-1 px-2">Borrar</span></a></td>
-                                <td class="text-center"><a onclick="setDone({{ $order->id }})"><span class="badge badge-warning order-edit-label py-1 px-2">Entregado</span></a></td>
-                                <td class="text-center"><a class="maps-link" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination={{ $order->lat }},{{ $order->lng }}&travelmode=driving"><span class="badge badge-warning order-edit-label py-1 px-2">Maps</span></a></td>
-                            </tr>
-                        @endforeach()
-                       
-                    </tbody>
-
-                </table>
-                <a href="{{ route('delivery.list_orders') }}" class="save btn btn-primary">Ver Todos</a>
             </div>
-            @endif
         </div>
     </div>
-    <hr>
-    <div class="row mt-3 p-4">
+    <div class="row">
         <div class="col-md-12">
-            <h4>Últimos 20 pedidos entregados</h4>
-            @if(count($ship_orders_done))
-                <div class="mt-3">
-                    <table id="tabla-done" class="py-2 px-1 table table-sm table-striped  table-bordered">
-                        <thead>
-                            <tr>
-                            <th scope="col">Dirección</th>
-                            <th scope="col">Número</th>
-                            <th scope="col">Teléfono</th>
-                            <th scope="col">Barrio</th>
-                            <th scope="col">Precio</th>
-                            <th scope="col">-</th>
-                            <th scope="col">-</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @foreach($ship_orders_done as $order)
-                                <tr data-id="done-{{ $order->id }}">
-                                    <td>{{ $order->street }}</td>
-                                    <td>{{ $order->number }}</td>
-                                    <td>{{ $order->phone }}</td>
-                                    <td class="neighborhood">{{ $order->neighborhood }}</td>
-                                    <td>{{ $order->price }}</td>
-                                    <td class="text-center"><a href=""><span class="badge badge-warning order-edit-label py-1 px-2">Entregado</span></a></td>
-                                    <td class="text-center"><a class="maps-link" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination={{ $order->lat }},{{ $order->lng }}&travelmode=driving"><span class="badge badge-warning order-edit-label py-1 px-2">Maps</span></a></td>
-                                </tr>
-                            @endforeach()
-                        </tbody>
-
-                    </table>
-                    
-                @endif
+            @if(count($orders))
+            <route-component :orders="{{ $orders }}"></route-component>
+            @else 
+            <h4>No hay ninguna ruta armada para la zona</h4>
+            @endif
         </div>
     </div>
 </div>
@@ -114,73 +32,6 @@
 @section('scripts')
 <script type="text/javascript">
 
-    $(document).ready(function() {
-
-        $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-        });
-
-        //Update.
-        $(".order-input").blur(function() {
-            var id = $(this).closest('tr').attr('data-id')
-            console.log(this)
-            var number = $(this).closest('tr').find('input[name="number"]').val()
-            var price = $(this).closest('tr').find('[name="price"]').val()
-            var phone = $(this).closest('tr').find('[name="phone"]').val()
-           
-            var values = {id: id, number: number, price:price, phone:phone}
-            console.log(values)
-          
-
-            $.ajax({
-                type:'POST',
-                url:'{{ route('delivery.update_order') }}',
-                data: JSON.stringify(values),
-                contentType: 'json', 
-                processData: true,
-                success: onSuccessUpdate
-            });
-        })
-
-    })
-
-
-    function deleteOrder(id) {
-        $.ajax({
-            type:'POST',
-            url:'{{ route('delivery.delete_order') }}',
-            data: JSON.stringify({id: id}),
-            contentType: 'json', 
-            processData: true,
-            success: onSuccessDelete
-        })
-    }
-
-    function setDone(id) {
-        $.ajax({
-            type:'POST',
-            url:'{{ route('delivery.set_order_done') }}',
-            data: JSON.stringify({id: id}),
-            contentType: 'json', 
-            processData: true,
-            success: onSuccessSetDone
-        })
-    }
-
-    function onSuccessSetDone(data) {
-        location.reload();
-    }
-
-    function onSuccessDelete(data) {
-         
-    }
-
-    function onSuccessUpdate(data) {
-        $('tr[data-id='+data.id+']').find('.neighborhood').text(data.neighborhood)        
-        $('tr[data-id='+data.id+']').find('.maps-link').attr('href', 'https://www.google.com/maps/dir/?api=1&destination='+data.lat+','+data.lng+'&travelmode=driving')
-    }
 </script>
 <!--
 <script type="text/javascript">    

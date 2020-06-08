@@ -11566,6 +11566,12 @@ a.text-dark:focus {
   }
 }
 
+#app,
+body,
+html {
+  background: #fafafa !important;
+}
+
 .ul-actions {
   list-style: none;
   margin: 0;
@@ -11574,5 +11580,30 @@ a.text-dark:focus {
 .ul-actions-element {
   display: inline;
   font-size: 1.2em;
+}
+
+.bl-blue {
+  border-left: 2px solid #3490dc;
+}
+
+.radius-100 {
+  border-radius: 100% !important;
+}
+
+.boton-directions {
+  margin-top: -3rem;
+  border-radius: 50% !important;
+  width: 61.1px;
+  height: 61.1px;
+  padding: 0 !important;
+  cursor: pointer;
+}
+
+.boton-directions i {
+  display: inline-block;
+  width: inherit;
+  font-size: 1.625rem;
+  line-height: 61.1px;
+  text-align: center;
 }
 

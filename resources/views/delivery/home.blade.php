@@ -1,16 +1,20 @@
-@extends('delivery.html')
+@extends('layouts.html')
 
 @section('content')
-@if ( session('message') )
-    <div class="alert alert-success">{{ session('message') }}</div>
-@endif
-<div class="container">
+<div class="container-fluid">
     <div class="row pb-3">
         <div class="col-lg-4 mt-3">
+
             <form class="border p-3 needs-validation" method="POST" action="{{ route('delivery.save_order') }}">
             @csrf
             
-                <h4>Direcciones <span>Agregar Calle</span></h4>
+                <h4>Direcciones <span>Agregar Envío</span></h4>
+                <div class="form-group">
+                    <input required type="text" name="name" class="w-100 form-control validate" placeholder="Nombre">
+                </div>
+                <div class="form-group">
+                    <input required type="text" name="product" class="w-100 form-control validate" placeholder="Zapatilla">
+                </div>
                 <div class="form-group">
                     <autocomplete></autocomplete>
                 </div>
@@ -24,17 +28,17 @@
                     <input type="number" name="price" class="w-100 form-control validate" min="0" placeholder="Precio">
                 </div>
                 <div class="form-group">
-                    <input type="text" name="description" class="w-100 form-control validate" placeholder="Descripcion">
+                    <textarea type="text" name="description" class="w-100 form-control validate" placeholder="Descripcion"></textarea>
                 </div>
                 
                 <button id="btn-submit" type="submit" class="save btn btn-primary">Agregar</button>
             </form>
         </div>
-        <div class="col-lg-8 mt-3 p-4">
+        <div class="col-lg-12 mt-3 p-4">
             <h4>Pedidos sin entregar</h4>
 
             @if(count($ship_orders))
-            <div class="mt-3">
+            <div class="mt-3 table-responsive">
                 <table id="tabla" class="py-2 px-1 table table-sm table-striped  table-bordered">
                     <thead>
                         <tr>
@@ -43,9 +47,8 @@
                         <th scope="col">Teléfono</th>
                         <th scope="col">Zona</th>
                         <th scope="col">Precio</th>
-                        <th scope="col">-</th>
-                        <th scope="col">-</th>
-                        <th scope="col">-</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col"></th>
                         </tr>
                     </thead>
 
@@ -55,10 +58,9 @@
                                 <td>{{ $order->street }}</td>
                                 <td><input class="form-control w-100 order-input" name="number" type="number" value="{{ $order->number }}" min="0" required step="1"></td>
                                 <td><input class="form-control w-100" type="text" name="phone" value="{{ $order->phone }}"></td>
-                                <td class="neighborhood">{{ $order->zone_name }}</td>
+                                <td><zone-selector route="{{ route('delivery.set_zone_order') }}" v-bind:zones="{{ $zones }}" v-bind:id="{{ $order->id }}" zoneselected="{{ $order->zone }}"></zone-selector>
                                 <td><input class="form-control w-100" type="number" name="price" value="{{ $order->price }}"></td>
-                                <td class="text-center"><a onclick="deleteOrder({{ $order->id }})"><span class="badge badge-warning order-edit-label py-1 px-2">Borrar</span></a></td>
-                                <td class="text-center"><a onclick="setDone({{ $order->id }})"><span class="badge badge-warning order-edit-label py-1 px-2">Entregado</span></a></td>
+                                <td class="text-center"><status-selector route="{{ route('delivery.order.set_status') }}" v-bind:options="{{ $status }}" v-bind:id="{{ $order->id }}" optionselected="{{ $order->status }}"></status-selector></td>
                                 <td class="text-center"><a class="maps-link" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination={{ $order->lat }},{{ $order->lng }}&travelmode=driving"><span class="badge badge-warning order-edit-label py-1 px-2">Maps</span></a></td>
                             </tr>
                         @endforeach()
@@ -161,7 +163,7 @@
     function setDone(id) {
         $.ajax({
             type:'POST',
-            url:'{{ route('delivery.set_order_done') }}',
+            url:'{{ route('delivery.order.complete_order') }}',
             data: JSON.stringify({id: id}),
             contentType: 'json', 
             processData: true,

@@ -24,8 +24,8 @@ class CreateShipOrdersTable extends Migration
             $table->float('lat', 16, 14);
             $table->float('lng', 16, 14);
             $table->string('phone')->nullable($value = true);
-            $table->string('description');
-            $table->unsignedSmallInteger('status')->default(0);
+            $table->string('description')->nullable($value = true);
+            $table->unsignedSmallInteger('status')->default(1);
             $table->unsignedSmallInteger('zone')->nullable($value = true);
             $table->unsignedSmallInteger('neighborhood');
             $table->float('price', 10, 2)->nullable($value = true)->default(0);

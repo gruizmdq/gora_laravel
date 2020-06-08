@@ -1,63 +1,57 @@
-@extends('delivery.html')
+@extends('layouts.html')
 
 @section('content')
-@if ( session('message') )
-    <div class="alert alert-success">{{ session('message') }}</div>
-@endif
-<div class="container">
+
+<div class="container-fluid" style="background: #fafafa">
     <div class="row pb-3">
-        <div class="col-lg-12 mt-3 p-4">
-            <h4>Pedidos sin entregar</h4>
-            <div class="mt-3 col-md-12">
-                <ul class="boton nav">
-                    <li class="nav-item active">
-                        <a href="{{ route('delivery.list_orders') }}" class="btn btn-outline-primary waves-effect btn-sm {{ $id_zone < 1 ? 'active' : ''  }}">Todos</a>
-                    </li>
-                    @foreach($zones as $zone)
-                    <li class="nav-item">
-                        <a href="{{ route('delivery.list_orders', $zone->id) }}" class="btn btn-outline-primary waves-effect btn-sm  {{ $id_zone == $zone->id ? 'active' : ''  }}">{{ $zone->name }}</a>
-                    </li>
-                    @endforeach
-                </ul>
+        <div class="col-lg-12">
+            <div class="z-depth-1 white p-4">
+                <h4 class="">Pedidos sin entregar</h4>
+                <div class="mt-3 col-md-12">
+                    <ul class="boton nav">
+                        <li class="nav-item active">
+                            <a href="{{ route('delivery.list_orders') }}" class="btn btn-outline-primary waves-effect btn-sm {{ $id_zone < 1 ? 'active' : ''  }}">Todos</a>
+                        </li>
+                        @foreach($zones as $zone)
+                        <li class="nav-item {{ request()->segment(count(request()->segments())) == $zone->id ? 'active' : ''  }}">
+                            <a href="{{ route('delivery.list_orders', $zone->id) }}" class="btn waves-effect btn-sm  {{ request()->segment(count(request()->segments())) == $zone->id ? 'btn-primary' : 'btn-outline-primary'  }}">{{ $zone->name }}</a>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
             @if(count($ship_orders))
             @foreach($ship_orders as $key => $value)
             <div class="mt-4">
                 <ul class="boton nav my-3">
-                    <li class="nav-item">
-                        <h4>{{ $key }}</h4>
-                    </li>
                     <li class="ml-3 nav-item">
-                        <button type="button" class="btn btn-outline-primary waves-effect btn-sm " data-toggle="modal" data-target="#createRouteModal">
-                        Crear Ruta
-                        </button>
+                        
                     </li>
                 </ul>
-                <table id="tabla" class="py-2 px-1 table table-sm table-striped  table-bordered">
+                <h5 class="py-3 px-3 mb-3 bl-blue z-depth-1 white">Ya asignados en una ruta 
+                    <a type="button" class="align-middle float-right btn btn-primary waves-effect btn-sm m-0 ml-2" href="{{ route('delivery.routes', $zone->id) }}">
+                        Ver Ruta
+                    </a>
+                    <button type="button" class="align-middle float-right btn btn-outline-primary waves-effect btn-sm m-0 " data-toggle="modal" data-target="#createRouteModal">
+                        Crear Ruta
+                    </button>
+                </h5>
+                <table id="tabla" class="z-depth-1 white py-2 px-1 table table-sm table-striped  table-bordered">
                     <thead>
                         <tr>
-                        <th scope="col">Dirección</th>
-                        <th scope="col">Teléfono</th>
-                        <th scope="col">Zona</th>
-                        <th scope="col">Precio</th>
-                        <th scope="col">-</th>
-                        <th scope="col">-</th>
-                        <th scope="col">-</th>
+                            <th scope="col">Dirección</th>
+                            <th scope="col">Número</th>
+                            <th scope="col">Teléfono</th>
+                            <th scope="col">Zona</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @foreach($value as $item)    
-                            <tr data-id="{{ $item->id }}">
-                                <td>{{ $item->street }} {{ $item->number }}</td>
-                                <td>{{ $item->phone }}</td>
-                                <td><zone-selector route="{{ route('delivery.set_zone_order') }}" v-bind:zones="{{ $zones }}" v-bind:id="{{ $item->id }}" zoneselected="{{ $item->zone }}"></zone-selector>
-                                </td>
-                                <td>{{ $item->price }}</td>
-                                <td class="text-center"><a onclick="deleteOrder({{ $item->id }})"><span class="badge badge-warning order-edit-label py-1 px-2">Borrar</span></a></td>
-                                <td class="text-center"><a onclick="setDone({{ $item->id }})"><span class="badge badge-warning order-edit-label py-1 px-2">Entregado</span></a></td>
-                                <td class="text-center"><a class="maps-link" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination={{ $item->lat }},{{ $item->lng }}&travelmode=driving"><span class="badge badge-warning order-edit-label py-1 px-2">Maps</span></a></td>
-                            </tr>
+                        @foreach($value as $order)
+                          <tr is="order-row" :order="{{ $order }}" :zones="{{ $zones }}" route="{{ route('delivery.order.update_address') }}" v-bind:status="{{ $status }}"></tr> 
                         @endforeach()
                        
                     </tbody>
@@ -66,6 +60,42 @@
             </div>
             @endforeach()
             @endif
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="mt-4">
+                <h5 class="py-3 px-3 mb-3 bl-blue z-depth-1 white">No asignados en una ruta                
+                    <button type="button" class="align-middle float-right btn btn-outline-primary waves-effect btn-sm m-0 " data-toggle="modal" data-target="#createRouteModal">
+                        Crear Ruta
+                    </button>
+                </h5>
+                
+                @if(count($orders_unassigned))
+                <table id="tabla" class="z-depth-1 white py-2 px-1 table table-sm table-striped  table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Dirección</th>
+                            <th scope="col">Número</th>
+                            <th scope="col">Teléfono</th>
+                            <th scope="col">Zona</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach($orders_unassigned as $order)
+                          <tr is="order-row" :order="{{ $order }}" :zones="{{ $zones }}" route="{{ route('delivery.order.update_address') }}" v-bind:status="{{ $status }}"></tr> 
+                        @endforeach()
+                       
+                    </tbody>
+                </table>
+                @endif
+            </div>
         </div>
     </div>
 </div>
@@ -80,9 +110,9 @@
         </button>
       </div>
       <div class="modal-body">
-        <form class="create-route" action="#">
+        <form method="post" class="create-route">
             <div class="start">
-                <h4>Agregar Dirección de Origen</h4>
+                <h5>Agregar dirección de origen</h5>
                 <div class="form-group">
                     <autocomplete></autocomplete>
                 </div>
@@ -91,7 +121,7 @@
                 </div>
             </div>
             <div class="end">
-                <h4>Agregar Dirección de Terminación</h4>
+                <h5>Agregar dirección de terminación</h5>
                 <div class="form-group">
                     <autocomplete></autocomplete>
                 </div>
@@ -100,7 +130,7 @@
                 </div>
             </div>
             <button type="submit" class="btn btn-primary">Calcular Ruta</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Volver</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Volver</button>
         </form>
       </div>
       <div class="modal-footer">
@@ -111,69 +141,18 @@
 </div>
 @endsection
 @section('scripts')
-<script type="text/javascript">
-
-    $(document).ready(function() {
-
-        $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-        });
-
-        //Update.
-        $("form.create-route").submit(function(e) {
-           
-            /* stop form from submitting normally */
-            event.preventDefault();
-
-            var start = {code: $('.start input[name="code"').val(), name: $('.start input[name="street"').val(), number: $('.start input[name="number"').val()}
-            var end = {code: $('.end input[name="code"').val(), name: $('.end input[name="street"').val(), number: $('.end input[name="number"').val()}
-            var values = {id: '{{ $id_zone }}', start: start, end: end}
-          
-
-            $.ajax({
-                type:'POST',
-                url:'{{ route('delivery.create_route') }}',
-                data: JSON.stringify(values),
-                contentType: 'json', 
-                processData: true,
-                success: onSuccessCreateOrder,
-                error: onErrorCreateOrder
-            });
-        })
-
-    })
-
-
-    
-
-    function onSuccessCreateOrder(data) {
-        //location.reload();
-        console.log('jejje')
-    }
-
-</script>
-<!--
 <script type="text/javascript">    
 
     $(document).ready(function() {
 
-        $("aa").submit(function(e){
+        $(".create-route").submit(function(e){
             e.preventDefault();
             
             
-            var $streets = $('form :input.address');
-            var $streets_number = $('form :input.address-number');
-
-            var values = []
-
-            $.each($streets, function(index, value) {
-                var code = $(value).attr('data-code')
-                var name = $(value).val()
-                var number = $($streets_number[index]).val()
-                values.push({code:code, name:name, number:number})
-            })
+            var $start = { name: $('.start input[name="street"]').val(), code: $('.start input[name="street"]').attr('data-code'), number: $('.start input[name="number"]').val() };
+            var $end = { name: $('.start input[name="street"]').val(), code: $('.end input[name="street"]').attr('data-code'), number: $('.start input[name="number"]').val() };
+           
+            var values = { id_zone: '{{ request()->segment(count(request()->segments())) }}', start: $start, end: $end }
 
             $.ajaxSetup({
                 headers: {
@@ -183,17 +162,17 @@
 
             $.ajax({
                 type:'POST',
-                url:'{{ route('delivery.get_route') }}',
+                url:'{{ route('delivery.create_route') }}',
                 data: JSON.stringify(values),
                 contentType: 'json', 
                 processData: true,
                 success:function(data){
-                    alert(data.success);
+                    alert(data.msg);
             }
             });
         });
     })
     
 
-</script>-->
+</script>
 @endsection

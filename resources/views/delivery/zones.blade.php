@@ -1,4 +1,4 @@
-@extends('delivery.html')
+@extends('layouts.html')
 
 @section('content')
 @if ( session('message') )

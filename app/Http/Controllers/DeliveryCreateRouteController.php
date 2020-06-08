@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Ship_Order;
 use App\Zone;
 use Log;
+use Route;
 
 
 class DeliveryCreateRouteController extends Controller
@@ -34,17 +35,19 @@ class DeliveryCreateRouteController extends Controller
         Log::info(self::LOG_LABEL." New request to create route received: ".$request->getContent()); 
         
         $inputs = json_decode($request->getContent(), true);
-        $id_zone = $inputs['id'];
+        $id_zone = $inputs['id_zone'];
         $start = $inputs['start'];
         $end = $inputs['end'];
         
-
-        //Checkeo si la zona tiene una ruta calculandose
+        if ($id_zone == 0)
+            return ['msg' => "Error. No se especificó qué en qué zona armar la ruta.", 'status' => 'error'];
+        
+            //Checkeo si la zona tiene una ruta calculandose
         $zone = Zone::find($id_zone);
         if ($zone->lock) {
             //TODO LANZAR EXCEPCION?
             Log::error(self::LOG_LABEL." ERROR: One process is calculating the route for the zone with id $id_zone $zone->name"); 
-            return;
+            return ['msg' => "Error. Ya se está calculando la ruta para la zona $zona->name. Esperá unos minutos.", 'status' => 'error'];
         }
         else{
             $zone->lock = 1;
@@ -55,7 +58,7 @@ class DeliveryCreateRouteController extends Controller
         //TODO fijarse cuando idzone = 0, hay que armar ruta con TODAS las zonas...
         $orders = Ship_Order::where([
                                     ['zone', $id_zone],
-                                    ['status', 0]])
+                                    ['status', '<', 4]])
                                     ->get();
         
         //TODO Cambiar esta verga que lo hice de copy paste nomass
@@ -71,6 +74,7 @@ class DeliveryCreateRouteController extends Controller
             $this->order[$i] = $i;
             $i++;
         }
+        
         Log::info(self::LOG_LABEL." Orders to calculate: ".sizeof($orders));
 
         Log::info(self::LOG_LABEL." Start getting coordenates from START address..."); 
@@ -79,6 +83,8 @@ class DeliveryCreateRouteController extends Controller
         if (!$this->coords_are_valid($coords)) {
             //TODO LANZAR EXCEPCION
             Log::error(self::LOG_LABEL." ERROR. Coords from {$start['code']} {$start['name']} {$start['number']} are invalid.");
+            $zone->lock = 0;
+            $zone->save();
             return; 
         }
         array_unshift($this->data, [
@@ -95,6 +101,8 @@ class DeliveryCreateRouteController extends Controller
         if (!$this->coords_are_valid($coords)) {
             //TODO LANZAR EXCEPCION
             Log::error(self::LOG_LABEL." ERROR. Coords from {$end['code']} {$end['name']} {$end['number']} are invalid.");
+            $zone->lock = 0;
+            $zone->save();
             return; 
         }
         array_push($this->data, [
@@ -117,9 +125,11 @@ class DeliveryCreateRouteController extends Controller
         }
 
         $i = 0;
+
         //No tengo en cuenta el primero y el ultimo (end and start)
         foreach (array_slice($this->best_order_ever, 1, sizeof($this->best_order_ever)-2)  as $index){
             $orders[$index-1]->route_order = $i;
+            $orders[$index-1]->is_assigned = 1;
             $orders[$index-1]->save();
             $i++;
             Log::info(self::LOG_LABEL." {$this->data[$index]['nombre']} {$this->data[$index]['altura']}");
@@ -128,7 +138,7 @@ class DeliveryCreateRouteController extends Controller
         $zone->lock = 0;
         $zone->save();
         Log::info(self::LOG_LABEL." Route calculation success."); 
-        return response()->json('¡La ruta se calculó satisfactoriamente!', 200);
+        return ['msg' => '¡La ruta se calculó satisfactoriamente!', 'status' => 'success'];
 
     }
     

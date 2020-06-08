@@ -19,13 +19,13 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {   
-        $request->user()->authorizeRoles(['admin', 'user', 'company_admin']);
+        $request->user()->authorizeRoles(['admin', 'delivery', 'seller']);
         
-        if ($request->user()->hasRole('company_admin'))
-            return redirect('company');
+        if ($request->user()->hasRole('delivery'))
+            return redirect('delivery');
 
-        if ($request->user()->hasRole('user'))
-            return $this->index_user();
+        if ($request->user()->hasRole('seller'))
+            return redirect('seller');
         
         if ($request->user()->hasRole('admin'))
             return redirect('admin');
