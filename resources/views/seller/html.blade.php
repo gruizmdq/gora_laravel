@@ -9,6 +9,7 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
+    <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
@@ -29,7 +30,9 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
-
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('seller.home') }}">Home</a>
+                        </li>
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -45,11 +48,6 @@
                                 </li>
                             @endif
                         @else
-                            <li class="nav-item">
-                            <a id="" class="nav-link" href="#" role="button">Pedidos</a></li>
-                            <a id="" class="nav-link" href="#" role="button">Empresas</a></li>
-                            <a id="" class="nav-link" href="#" role="button">Usuarios</a></li>
-                            <a id="" class="nav-link" href="#" role="button">Deliverys</a></li>
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }} <span class="caret"></span>
@@ -74,10 +72,41 @@
         </nav>
 
         <main class="py-4">
-            @yield('content')
+            @if (session('success') )
+                <div class="fade show active alert alert-success">{{ session('success') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>    
+                </div>
+            @endif
+            @if (session('error') )
+                <div class="fade show active alert alert-danger">{{ session('error') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+            @if (session('warn') )
+                <div class="fade show active alert alert-warning">{{ session('warn') }}<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>        
+                </div>
+            @endif
         </main>
+    @yield('content')
     </div>
+
+    <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            setInterval(function () {
+                $( ".alert" ).alert('close');
+            },5000);
+            
+        });
+    </script>
     @yield('scripts')
 </body>
 </html>

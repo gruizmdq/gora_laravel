@@ -13,7 +13,7 @@ class DeliveryZonesController extends Controller
 
     public function index(Request $request)
     {   
-        //$request->user()->authorizeRoles(['admin', 'user', 'company_admin']);
+        $request->user()->authorizeRoles(['admin', 'delivery']);
         //Auth::id()
         $neighborhoods_unasigned = Neighborhood::where('zone', 0)->get();
         $neighborhoods_assigned = Neighborhood::where('zone','>', 0)->get();
@@ -38,7 +38,9 @@ class DeliveryZonesController extends Controller
     public function set_neighborhood(Request $request) {
         \Log::info("************************************"); 
         \Log::info(self::LOG_LABEL." New request to add a neighborhood to a zone received: ".$request->getContent()); 
-    
+        
+        $request->user()->authorizeRoles(['admin', 'delivery']);
+
         $inputs = json_decode($request->getContent(), true);
         $id_neighborhood = $inputs['id'];
         $id_zone = $inputs['id_zone'];
@@ -66,7 +68,9 @@ class DeliveryZonesController extends Controller
         
         \Log::info("************************************"); 
         \Log::info(self::LOG_LABEL." New request to add zone received: ".$request->getContent()); 
-    
+        
+        $request->user()->authorizeRoles(['admin', 'delivery']);
+
         $name = $request->input('name');
 
         try {

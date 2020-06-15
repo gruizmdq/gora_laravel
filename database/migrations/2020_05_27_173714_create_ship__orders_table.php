@@ -28,7 +28,7 @@ class CreateShipOrdersTable extends Migration
             $table->unsignedSmallInteger('status')->default(1);
             $table->unsignedSmallInteger('zone')->nullable($value = true);
             $table->unsignedSmallInteger('neighborhood');
-            $table->float('price', 10, 2)->nullable($value = true)->default(0);
+            $table->float('price', 10, 2)->nullable($value = false)->default(0);
             $table->unsignedSmallInteger('route_order')->nullable($value = true)->default(0);
             $table->boolean('is_assigned')->default(0);
 

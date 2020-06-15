@@ -78,7 +78,7 @@
                                         <zone-selector route="{{ route('delivery.set_neighborhood') }}" v-bind:zones="{{ $zones }}" v-bind:id="{{ $item->id }}"></zone-selector>
                                     @endif
                                 </td>
-                                <td class="text-center"><a class="maps-link" target="_blank" href="https://www.google.com/maps/search/?api=1&query={{ $item->lat }},{{ $item->lng }}&zoom=14"><span class="badge badge-warning order-edit-label py-1 px-2">Maps</span></a></td>
+                                <td class="text-center"><a class="maps-link" target="_blank" href="https://www.google.com/maps/search/?api=1&query={{ $item->lat }},{{ $item->lng }}&zoom=0"><span class="badge badge-warning order-edit-label py-1 px-2">Maps</span></a></td>
                             </tr>
                         @endforeach()
                     </tbody>

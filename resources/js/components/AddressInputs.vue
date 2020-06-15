@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<select class="form-control" v-bind:class="background" @change="onChange">
+		<select class="form-control" @change="onChange">
             <option value="0" selected>Elegir zona...</option>
             <option v-for="zone in zones" v-bind:key="zone.id" :value="zone.id" :selected="is_selected(zone.id)">{{ zone.name }}</option>
         </select>
@@ -13,31 +13,17 @@
 				type: Number,
 				default: -1
 			},
-			zones: {
-				type: Array,
-				default: ''
-			},
 			route: {
 				type: String,
 				default: ''
-			},
-			zoneselected: {
-				type: Number,
-				default: -1
-			}
-		},
-		computed: {
-			background(){
-				return this.zoneselected == 0 ? 'red' : '';
 			}
 		},
 		methods: {
 			onChange(selected) {
 				axios.post(this.route, {id: this.id, id_zone:selected.target.value})
-                .then((response)=>{					
+                .then((response)=>{
                     this.$noty.success(response.data)
-				})
-				this.zoneselected = parseInt(selected.target.value)
+                })
 			},
 			is_selected(id) {
 				if (id == parseInt(this.zoneselected))

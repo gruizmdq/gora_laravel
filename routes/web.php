@@ -2,6 +2,7 @@
 
 
 Auth::routes();
+
 Route::get('/', 'HomeController@index')->name('home');
 
 /* ROUTE DELIVERYS! */
@@ -24,29 +25,12 @@ Route::post('/delivery/zones/set_neighborhood', 'DeliveryZonesController@set_nei
 Route::post('/delivery/create_route/', 'DeliveryCreateRouteController@create_route')->name('delivery.create_route');
 Route::get('/delivery/routes/{id_zone}', 'DeliveryRoutesController@index')->name('delivery.routes');
 
-/* GORA ADMIN 
-Route::get('/admin', 'GoraAdminController@index')->name('admin.home');
-Route::get('/admin/add_order', 'GoraAdminController@add_order')->name('admin.add_order');
-Route::post('/admin/add_order', 'GoraAdminController@add_order')->name('admin.add_order');
-Route::post('/admin/add_order_company', 'GoraAdminController@add_order_company')->name('admin.add_order_company');
-*/
-/*  USERS 
 
-Route::get('/order/{id}', 'HomeController@view_order')
-    ->where('id', '[0-9]+')
-    ->name('view_order');
+/* ROUTE SELLERS! */
+Route::get('/seller', 'SellerHomeController@index')->name('seller.home');
+Route::get('/seller/orders/{offset?}', 'SellerOrdersController@list_orders')->name('seller.orders');
 
-Route::post('/add_order', 'HomeController@add_order')->name('add_order');
 
-Route::resource('/menus', 'MenusController');
-Route::get('/getEmpleados/{id}', 'MainController@get_empleados')
-    ->where('id', '[0-9]+')
-    ->name('get_empleados');
- */
-/* COMPANY ADMIN 
-
-Route::get('/company', 'CompanyAdminController@index')->name('company.home');
-Route::get('/company/add_user', 'CompanyAdminController@add_user')->name('company.add_user');
-Route::post('/company/add_user', 'CompanyAdminController@add_user')->name('company.add_user');
-Route::get('/company/show_users/{id?}', 'CompanyAdminController@show_users')->name('company.show_users');
-*/
+/* ROUTE ADMIN! */
+Route::get('/admin/{date?}', 'AdminHomeController@index')->name('admin.home');
+Route::post('/admin/delete_order', 'AdminHomeController@delete_order')->name('admin.delete_order');

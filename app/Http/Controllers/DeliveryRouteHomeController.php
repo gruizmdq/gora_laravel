@@ -41,14 +41,17 @@ class DeliveryRouteHomeController extends Controller
 
     public function index(Request $request)
     {   
-        //Auth::id()
         $request->user()->authorizeRoles('delivery');
         $ship_orders = Ship_Order::where('status', '<', 4)
+                                    ->join('users', 'ship__orders.id_user', '=', 'users.id')
+                                    ->select('ship__orders.*', 'users.name as user_name')
                                     ->orderBy('ship__orders.id', 'asc')
                                     ->limit(10)
                                     ->get();
 
         $ship_orders_done = Ship_Order::where('status', 4)
+                                    ->join('users', 'ship__orders.id_user', '=', 'users.id')
+                                    ->select('ship__orders.*', 'users.name as user_name')
                                     ->orderBy('id', 'desc')
                                     ->limit(20)
                                     ->get();
@@ -109,10 +112,10 @@ class DeliveryRouteHomeController extends Controller
     public function save_ship_order(Request $request) {
 
         Log::info("************************************"); 
-        Log::info(self::LOG_LABEL." New request received: ".$request->getContent()); 
+        Log::info(self::LOG_LABEL." New request received: ".json_encode($request->getContent())); 
         
         $name = $request->input('name');
-        $product = $request->input('product');
+        $product = "{$request->input('shoe-brand')} - {$request->input('shoe-code')} - {$request->input('shoe-color')} - Nro: {$request->input('shoe-size')}";
         $street = $request->input('street');
         $code = $request->input('code');
         $number = $request->input('number');
@@ -163,7 +166,7 @@ class DeliveryRouteHomeController extends Controller
             $ship_order->phone = $phone;
             $ship_order->price = $price;
             $ship_order->description = $description;
-            $ship_order->status = 0;
+            $ship_order->status = 1;
             $ship_order->is_assigned = 0;
             $ship_order->zone = $zone;
             $ship_order->neighborhood = $neighborhood;
@@ -327,11 +330,15 @@ class DeliveryRouteHomeController extends Controller
         ]);
        
         Log::info(self::LOG_LABEL." Sending request to $url."); 
-
-        $resp = curl_exec($curl);
-        curl_close($curl);
-
-        return $resp;
+        
+        try {
+            $resp = curl_exec($curl);
+            curl_close($curl);
+            return $resp;
+        }
+        catch (Exception $e) {
+            //TODO exception
+        }
     }
 
     private function coords_are_valid($coords) {

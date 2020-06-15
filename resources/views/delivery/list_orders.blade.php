@@ -6,35 +6,36 @@
     <div class="row pb-3">
         <div class="col-lg-12">
             <div class="z-depth-1 white p-4">
-                <h4 class="">Pedidos sin entregar</h4>
+                <h4 class="">Pedidos sin entregar - {{ count($orders_unassigned) + count($ship_orders) }} en total</h4>
                 <div class="mt-3 col-md-12">
                     <ul class="boton nav">
                         <li class="nav-item active">
-                            <a href="{{ route('delivery.list_orders') }}" class="btn btn-outline-primary waves-effect btn-sm {{ $id_zone < 1 ? 'active' : ''  }}">Todos</a>
+                            <a href="{{ route('delivery.list_orders') }}" class="btn waves-effect btn-sm {{ $id_zone == null ? 'btn-primary' : 'btn-outline-primary'  }}">Todos</a>
                         </li>
                         @foreach($zones as $zone)
                         <li class="nav-item {{ request()->segment(count(request()->segments())) == $zone->id ? 'active' : ''  }}">
                             <a href="{{ route('delivery.list_orders', $zone->id) }}" class="btn waves-effect btn-sm  {{ request()->segment(count(request()->segments())) == $zone->id ? 'btn-primary' : 'btn-outline-primary'  }}">{{ $zone->name }}</a>
                         </li>
                         @endforeach
+                        <li class="nav-item active">
+                            <a href="{{ route('delivery.list_orders', 0) }}" class="btn waves-effect btn-sm {{ $id_zone === 0 ? 'btn-primary' : 'btn-outline-primary'  }}">Sin Zona</a>
+                        </li>
                     </ul>
                 </div>
             </div>
-            @if(count($ship_orders))
-            @foreach($ship_orders as $key => $value)
             <div class="mt-4">
                 <ul class="boton nav my-3">
                     <li class="ml-3 nav-item">
                         
                     </li>
                 </ul>
-                <h5 class="py-3 px-3 mb-3 bl-blue z-depth-1 white">Ya asignados en una ruta 
-                    <a type="button" class="align-middle float-right btn btn-primary waves-effect btn-sm m-0 ml-2" href="{{ route('delivery.routes', $zone->id) }}">
+                <h5 class="py-3 px-3 mb-3 bl-blue z-depth-1 white">Ya asignados en una ruta</a>
+
+                @if( $id_zone && count($ship_orders))
+                    <a type="button" class="align-middle float-right btn btn-primary waves-effect btn-sm m-0 ml-2" href="{{ route('delivery.routes', request()->segment(count(request()->segments()))) }}">
                         Ver Ruta
                     </a>
-                    <button type="button" class="align-middle float-right btn btn-outline-primary waves-effect btn-sm m-0 " data-toggle="modal" data-target="#createRouteModal">
-                        Crear Ruta
-                    </button>
+                @endif
                 </h5>
                 <table id="tabla" class="z-depth-1 white py-2 px-1 table table-sm table-striped  table-bordered">
                     <thead>
@@ -50,7 +51,7 @@
                     </thead>
 
                     <tbody>
-                        @foreach($value as $order)
+                        @foreach($ship_orders as $order)
                           <tr is="order-row" :order="{{ $order }}" :zones="{{ $zones }}" route="{{ route('delivery.order.update_address') }}" v-bind:status="{{ $status }}"></tr> 
                         @endforeach()
                        
@@ -58,17 +59,18 @@
 
                 </table>
             </div>
-            @endforeach()
-            @endif
         </div>
     </div>
     <div class="row">
         <div class="col-12">
             <div class="mt-4">
                 <h5 class="py-3 px-3 mb-3 bl-blue z-depth-1 white">No asignados en una ruta                
+                @if( $id_zone )
+                - <span style="font-size: 1rem" class="font-weight-lighter font-italic"> Al apretar Crear Ruta se van a añadir automáticamente.</span>
                     <button type="button" class="align-middle float-right btn btn-outline-primary waves-effect btn-sm m-0 " data-toggle="modal" data-target="#createRouteModal">
                         Crear Ruta
                     </button>
+                @endif
                 </h5>
                 
                 @if(count($orders_unassigned))
@@ -81,6 +83,7 @@
                             <th scope="col">Zona</th>
                             <th scope="col">Precio</th>
                             <th scope="col">Estado</th>
+                            <th scope="col">Vendedor</th>
                             <th scope="col"></th>
                             <th scope="col"></th>
                             <th scope="col"></th>
@@ -104,7 +107,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Calcular Ruta para: {{ key($ship_orders) }}</h5>
+        <h5 class="modal-title">Calcular Ruta para: {{ count($ship_orders) + count($orders_unassigned) }} direcciones</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -129,8 +132,8 @@
                     <input required type="number" name="number" class="w-100 form-control validate" step="1" min="0" placeholder="Número">
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Calcular Ruta</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Volver</button>
+            <button type="submit" class="btn btn-sm btn-primary">Calcular Ruta</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-dismiss="modal">Volver</button>
         </form>
       </div>
       <div class="modal-footer">

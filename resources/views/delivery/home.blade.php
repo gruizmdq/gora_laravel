@@ -3,37 +3,69 @@
 @section('content')
 <div class="container-fluid">
     <div class="row pb-3">
-        <div class="col-lg-4 mt-3">
-
-            <form class="border p-3 needs-validation" method="POST" action="{{ route('delivery.save_order') }}">
+        <div class="offset-md-3 col-md-6 mt-3">
+            <form method="POST" action="{{ route('delivery.save_order') }}">
             @csrf
-            
-                <h4>Direcciones <span>Agregar Envío</span></h4>
-                <div class="form-group">
-                    <input required type="text" name="name" class="w-100 form-control validate" placeholder="Nombre">
+
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="name">Nombre</label>
+                        <input required type="text" name="name" class="w-100 form-control validate">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="phone">Teléfono</label>
+                        <input required type="text" name="phone" class="w-100 form-control validate" >
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="price">Precio</label>
+                        <input type="number" name="price" class="w-100 form-control validate" min="0">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <input required type="text" name="product" class="w-100 form-control validate" placeholder="Zapatilla">
-                </div>
-                <div class="form-group">
-                    <autocomplete></autocomplete>
-                </div>
-                <div class="form-group">
-                    <input required type="number" name="number" class="w-100 form-control validate" step="1" min="0" placeholder="Número">
-                </div>
-                <div class="form-group">
-                    <input type="text" name="phone" class="w-100 form-control validate" placeholder="Teléfono">
-                </div>
-                <div class="form-group">
-                    <input type="number" name="price" class="w-100 form-control validate" min="0" placeholder="Precio">
-                </div>
-                <div class="form-group">
-                    <textarea type="text" name="description" class="w-100 form-control validate" placeholder="Descripcion"></textarea>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="street">Calle</label>
+                        <autocomplete></autocomplete>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="number">Número</label>
+                        <input required type="number" name="number" class="w-100 form-control validate" step="1" min="0">
+                    </div>
                 </div>
                 
-                <button id="btn-submit" type="submit" class="save btn btn-primary">Agregar</button>
+                <div class="form-row">
+                    <div class="form-group col-sm-6 col-md-3">
+                        <label for="shoe-brand">Marca</label>
+                        <input required type="text" name="shoe-brand" class="w-100 form-control validate" >
+                    </div>
+                    <div class="form-group col-sm-6 col-md-3">
+                        <label for="shoe-code">Artículo</label>
+                        <input required type="text" name="shoe-code" class="w-100 form-control validate" step="1" min="0">
+                    </div>
+                    <div class="form-group col-sm-6 col-md-3">
+                        <label for="shoe-color">Color</label>
+                        <input required type="text" name="shoe-color" class="w-100 form-control validate" >
+                    </div>
+                    <div class="form-group col-sm-6 col-md-3">
+                        <label for="shoe-size">Número</label>
+                        <input required type="text" name="shoe-size" class="w-100 form-control validate" step="1" min="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Descripción</label>
+                    <textarea type="text" name="description" class="w-100 form-control validate"></textarea>
+                </div>
+                
+                <div class="w-100 text-center">
+                    <button type="submit" class="btn btn-primary btn-md text-center m-auto">Agregar</button>
+                </div>
             </form>
+
         </div>
+    </div>
+    <hr>
+    <div class="row">
         <div class="col-lg-12 mt-3 p-4">
             <h4>Pedidos sin entregar</h4>
 
@@ -48,6 +80,7 @@
                         <th scope="col">Zona</th>
                         <th scope="col">Precio</th>
                         <th scope="col">Estado</th>
+                        <th scope="col">Vendedor</th>
                         <th scope="col"></th>
                         </tr>
                     </thead>
@@ -61,6 +94,7 @@
                                 <td><zone-selector route="{{ route('delivery.set_zone_order') }}" v-bind:zones="{{ $zones }}" v-bind:id="{{ $order->id }}" zoneselected="{{ $order->zone }}"></zone-selector>
                                 <td><input class="form-control w-100" type="number" name="price" value="{{ $order->price }}"></td>
                                 <td class="text-center"><status-selector route="{{ route('delivery.order.set_status') }}" v-bind:options="{{ $status }}" v-bind:id="{{ $order->id }}" optionselected="{{ $order->status }}"></status-selector></td>
+                                <td class="text-center">{{ $order->user_name }}</td>
                                 <td class="text-center"><a class="maps-link" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination={{ $order->lat }},{{ $order->lng }}&travelmode=driving"><span class="badge badge-warning order-edit-label py-1 px-2">Maps</span></a></td>
                             </tr>
                         @endforeach()

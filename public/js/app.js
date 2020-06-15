@@ -2307,6 +2307,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2554,7 +2555,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     orderCompleted: function orderCompleted(order) {
-      this.orders_completed.push(this.data.shift()); //this.data = order;
+      this.orders_completed.push(this.data.shift());
     },
     onChange: function onChange() {
       var _this = this;
@@ -2679,7 +2680,7 @@ __webpack_require__.r(__webpack_exports__);
       "default": []
     },
     optionselected: {
-      type: String,
+      type: Number,
       "default": 1
     },
     route: {
@@ -2748,6 +2749,11 @@ __webpack_require__.r(__webpack_exports__);
       "default": -1
     }
   },
+  computed: {
+    background: function background() {
+      return this.zoneselected == 0 ? 'red' : '';
+    }
+  },
   methods: {
     onChange: function onChange(selected) {
       var _this = this;
@@ -2758,6 +2764,7 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (response) {
         _this.$noty.success(response.data);
       });
+      this.zoneselected = parseInt(selected.target.value);
     },
     is_selected: function is_selected(id) {
       if (id == parseInt(this.zoneselected)) return 'selected';
@@ -39509,6 +39516,8 @@ var render = function() {
       1
     ),
     _vm._v(" "),
+    _c("td", [_vm._v(" " + _vm._s(_vm.data.user_name) + "\t")]),
+    _vm._v(" "),
     _c("td", { staticClass: "text-center" }, [
       _c(
         "a",
@@ -39764,17 +39773,19 @@ var render = function() {
       "div",
       { staticClass: "col-md-4" },
       [
-        _c("route-actual", {
-          attrs: {
-            route: "/delivery/orders/complete_order",
-            order: _vm.data[0]
-          },
-          on: {
-            orderCompleted: function($event) {
-              return _vm.orderCompleted($event)
-            }
-          }
-        })
+        _vm.data.length > 0
+          ? _c("route-actual", {
+              attrs: {
+                route: "/delivery/orders/complete_order",
+                order: _vm.data[0]
+              },
+              on: {
+                orderCompleted: function($event) {
+                  return _vm.orderCompleted($event)
+                }
+              }
+            })
+          : _vm._e()
       ],
       1
     ),
@@ -39818,7 +39829,7 @@ var render = function() {
         ]
       ),
       _vm._v(" "),
-      _c("h5", { staticClass: "mt-3 bl-blue p-3 white z-depth-1" }, [
+      _c("h5", { staticClass: "mt-5 bl-blue p-3 white z-depth-1" }, [
         _vm._v("Envíos completados")
       ]),
       _vm._v(" "),
@@ -40163,7 +40174,11 @@ var render = function() {
   return _c("div", [
     _c(
       "select",
-      { staticClass: "form-control", on: { change: _vm.onChange } },
+      {
+        staticClass: "form-control",
+        class: _vm.background,
+        on: { change: _vm.onChange }
+      },
       [
         _c("option", { attrs: { value: "0", selected: "" } }, [
           _vm._v("Elegir zona...")
